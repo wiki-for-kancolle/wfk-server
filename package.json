@@ -1,0 +1,24 @@
+{
+    "name": "wfk-server",
+    "version": "1.0.0",
+    "private": true,
+    "main": "index.js",
+    "scripts": {
+        "dev-report": "nodemon --watch 'src/*' -e js,ts --exec 'node index.js -s report' ",
+        "dev-stat": "nodemon --watch 'src/*' -e js,ts --exec 'node index.js -s stat' ",
+        "dev-api": "nodemon --watch 'src/*' -e js,ts --exec 'node index.js -s api' "
+    },
+    "dependencies": {
+        "esbuild-register": "^3.3.3",
+        "koa": "^2.13.4",
+        "log4js": "^6.6.1",
+        "minimist": "^1.2.6",
+        "moment": "^2.29.4",
+        "uuid": "^9.0.0",
+        "yaml": "^2.1.1"
+    },
+    "devDependencies": {
+        "@types/koa": "^2.13.5",
+        "nodemon": "^2.0.20"
+    }
+}
