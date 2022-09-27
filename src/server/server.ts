@@ -25,7 +25,7 @@ export class Server {
         });
 
         this.app.use(async ctx => {
-            ctx.body = ctx.body ?? 'Hello World1';
+            ctx.body = ctx.body ?? 'Hello World';
 
             const logger = ctx.logger as Logger;
             logger.debug(ctx.url, ctx.body);
@@ -33,7 +33,8 @@ export class Server {
     }
 
     public start() {
-        const port = ServerEnv.env?.command_line?.port ?? ServerEnv.env.server.port;
+        const port = ServerEnv.env?.global?.port;
         this.app.listen(port);
+        getLogger().info('server started');
     }
 }

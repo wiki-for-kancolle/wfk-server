@@ -4,11 +4,11 @@ export class ServerEnv {
     command_line: {
         server_name: string;
         mode: 'test' | 'prod' | 'dev';
+    };
+    global: {
         port: number;
     };
-    global: {};
     server: {
-        port: number;
         log: LoggerOptions;
     };
 

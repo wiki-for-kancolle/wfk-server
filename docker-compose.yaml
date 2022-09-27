@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+    web: &defaults
+        image: wfk/server:latest
+        restart: unless-stopped
+
+    report1:
+        ports:
+            - '21900:21900'
+        container_name: repoart_1
+        command: node index.js -s report
+        <<: *defaults
+
+    report2:
+        ports:
+            - '21901:21900'
+        container_name: repoart_2
+        command: node index.js -s report
+        <<: *defaults
