@@ -1,6 +1,7 @@
 # YAML file
 .env.test.yaml
 .env.prod.yaml
+scripts/
 
 # Logs
 logs
