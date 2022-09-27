@@ -5,16 +5,16 @@ services:
         image: wfk/server:latest
         restart: unless-stopped
 
-    report1:
+    report_1:
         ports:
             - '21900:21900'
-        container_name: repoart_1
+        container_name: report_1
         command: node index.js -s report
         <<: *defaults
 
-    report2:
+    report_2:
         ports:
             - '21901:21900'
-        container_name: repoart_2
+        container_name: report_2
         command: node index.js -s report
         <<: *defaults
