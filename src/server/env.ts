@@ -1,4 +1,4 @@
-import { LoggerOptions } from './log';
+import { LoggerOptions } from '../utils/log';
 
 export class ServerEnv {
     command_line: {

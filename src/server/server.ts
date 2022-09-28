@@ -1,8 +1,8 @@
 import Koa from 'koa';
+import koaBody from 'koa-body';
 import { getLogger, Logger } from 'log4js';
 import { v4 as uuidv4 } from 'uuid';
-import bodyParser from 'koa-bodyparser';
-import { ServerEnv } from '../utils/env';
+import { ServerEnv } from './env';
 
 export class Server {
     private app: Koa;
@@ -19,7 +19,7 @@ export class Server {
             await next();
         });
 
-        // logger
+        // add logger
         this.app.use(async (ctx, next) => {
             const startTime = Date.now();
             await next();
@@ -27,15 +27,22 @@ export class Server {
             ctx.logger.info('cost time: %dms', endTime - startTime);
         });
 
-        // body parser
+        // parse body, supported:
+        //  multipart/form-data
+        //  application/x-www-form-urlencoded
+        //  application/json
+        //  application/json-patch+json
+        //  application/vnd.api+json
+        //  application/csp-report
+        //  text/xml
         this.app.use(
-            bodyParser({
-                jsonLimit: '100mb',
+            koaBody({
+                jsonLimit: '10mb',
             }),
         );
 
         this.app.use(async ctx => {
-            ctx.body = ctx.request.body;
+            ctx.body = ctx.method === 'POST' ? ctx.request.body : ctx.query;
 
             const logger = ctx.logger as Logger;
             logger.debug(ctx.url, ctx.body);
