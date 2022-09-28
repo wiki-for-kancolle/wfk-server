@@ -12,6 +12,7 @@ export const initLogger = (opt: LoggerOptions) => {
             JSON.stringify({
                 trace_id: logEvent.context.trace ?? '',
                 path: logEvent.context.path ?? '',
+                ip: logEvent.context.ip ?? '',
                 level: logEvent.level.levelStr ?? '',
                 start_time: moment(logEvent.startTime).format('YYYY-MM-DD hh:mm:ss.SSS') ?? '',
                 pid: logEvent.pid ?? '',
@@ -26,7 +27,7 @@ export const initLogger = (opt: LoggerOptions) => {
                 type: 'stdout',
                 layout: {
                     type: 'pattern',
-                    pattern: '%[[%z][%d{yyyy-MM-dd hh:mm:ss.SSS}][%p]%] %m',
+                    pattern: '%[[%z][%d{yyyy-MM-dd hh:mm:ss.SSS}][%c][%p]%] %m',
                 },
             },
             file: {

@@ -1,19 +1,25 @@
 import Koa from 'koa';
-import koaBody from 'koa-body';
+import Router from '@koa/router';
 import { getLogger, Logger } from 'log4js';
 import { v4 as uuidv4 } from 'uuid';
+import { forEach } from 'lodash';
 import { ServerEnv } from './env';
+import { Service } from '../service/service';
+import { getIp } from '../utils/tools';
 
 export class Server {
     private app: Koa;
+    private router: Router;
 
     constructor() {
         this.app = new Koa();
+        this.router = new Router();
 
         // trace id
         this.app.use(async (ctx, next) => {
-            if (!ctx.logger) ctx.logger = getLogger();
             const traceId = ctx.get('X-Request-Id') || uuidv4();
+            if (!ctx.logger) ctx.logger = getLogger(traceId);
+            ctx.logger.addContext('ip', getIp(ctx.req));
             ctx.logger.addContext('trace', traceId);
             ctx.logger.addContext('path', ctx.path);
             await next();
@@ -21,31 +27,23 @@ export class Server {
 
         // add logger
         this.app.use(async (ctx, next) => {
+            const logger = ctx.logger as Logger;
+            logger.info(ctx.url, getIp(ctx.req));
             const startTime = Date.now();
             await next();
             const endTime = Date.now();
-            ctx.logger.info('cost time: %dms', endTime - startTime);
+            logger.info('cost time: %dms', endTime - startTime);
         });
+    }
 
-        // parse body, supported:
-        //  multipart/form-data
-        //  application/x-www-form-urlencoded
-        //  application/json
-        //  application/json-patch+json
-        //  application/vnd.api+json
-        //  application/csp-report
-        //  text/xml
-        this.app.use(
-            koaBody({
-                jsonLimit: '10mb',
-            }),
-        );
-
-        this.app.use(async ctx => {
-            ctx.body = ctx.method === 'POST' ? ctx.request.body : ctx.query;
-
+    public registServices(service: Array<Service>) {
+        forEach(service, s => {
+            s.registRouter(this.router);
+        });
+        this.app.use(this.router.routes());
+        this.app.use(async (ctx, next) => {
             const logger = ctx.logger as Logger;
-            logger.debug(ctx.url, ctx.body);
+            logger.warn('Unsupport request: ', ctx.method, ctx.path);
         });
     }
 
