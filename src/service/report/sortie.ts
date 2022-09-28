@@ -15,7 +15,7 @@ export class ReportSortie implements Service {
         );
     };
 
-    isReady = () => false;
+    isReady = () => true;
 
     handle = async (ctx, next) => {
         const logger = ctx.logger as Logger;
