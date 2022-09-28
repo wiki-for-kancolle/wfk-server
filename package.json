@@ -13,6 +13,7 @@
         "esbuild-register": "^3.3.3",
         "koa": "^2.13.4",
         "koa-body": "^5.0.0",
+        "lodash": "^4.17.21",
         "log4js": "^6.6.1",
         "minimist": "^1.2.6",
         "moment": "^2.29.4",
