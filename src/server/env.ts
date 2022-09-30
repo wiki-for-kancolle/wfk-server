@@ -1,4 +1,5 @@
 import { LoggerOptions } from '../utils/log';
+import { PoolOptions } from 'mysql2';
 
 export class ServerEnv {
     command_line: {
@@ -7,6 +8,7 @@ export class ServerEnv {
     };
     global: {
         port: number;
+        mysql: PoolOptions;
     };
     server: {
         log: LoggerOptions;

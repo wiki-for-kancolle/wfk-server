@@ -5,4 +5,5 @@ class ReportServer extends Server {}
 
 const server = new ReportServer();
 server.registServices([new ReportSortie()]);
+server.initialize();
 server.start();

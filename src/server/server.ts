@@ -6,6 +6,7 @@ import { forEach } from 'lodash';
 import { ServerEnv } from './env';
 import { Service } from '../service/service';
 import { getIp } from '../utils/tools';
+import { initDbPool } from '../model/db_pool';
 
 export class Server {
     private app: Koa;
@@ -45,6 +46,10 @@ export class Server {
             const logger = ctx.logger as Logger;
             logger.warn('Unsupport request: ', ctx.method, ctx.path);
         });
+    }
+
+    public initialize() {
+        initDbPool(ServerEnv.env?.global?.mysql);
     }
 
     public start() {
