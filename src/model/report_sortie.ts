@@ -8,6 +8,7 @@ export class ReportSortieModel implements DbModel {
     ctx: any;
     id: number;
     map_id: number;
+    map_no: number;
     map_area_id: number;
     map_level: number;
     teitoku_id: string;
@@ -22,6 +23,7 @@ export class ReportSortieModel implements DbModel {
         this.ctx = ctx;
         this.id = data?.id ?? null;
         this.map_id = data?.map_id ?? null;
+        this.map_no = data?.map_no ?? null;
         this.map_area_id = data?.map_area_id ?? null;
         this.map_level = data?.map_level ?? null;
         this.teitoku_id = data?.teitoku_id ?? null;
@@ -37,6 +39,7 @@ export class ReportSortieModel implements DbModel {
         return {
             id: this.id,
             map_id: this.map_id,
+            map_no: this.map_no,
             map_area_id: this.map_area_id,
             map_level: this.map_level,
             teitoku_id: this.teitoku_id,

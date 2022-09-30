@@ -41,8 +41,9 @@ export class ReportSortie implements Service {
         const info_length = info.length;
 
         const model = new ReportSortieModel(ctx);
-        model.map_id = data.mapId;
+        model.map_no = data.mapId;
         model.map_area_id = data.mapAreaId;
+        model.map_id = data.mapAreaId * 10 + data.mapId;
         model.map_level = data.mapLevel;
         model.teitoku_id = data.teitokuId;
         model.nick_name = data.nickName;
