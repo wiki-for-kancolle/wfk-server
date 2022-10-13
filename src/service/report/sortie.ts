@@ -25,22 +25,22 @@ export class ReportSortie implements Service {
             return;
         }
 
+        // format data
         let data: string = ctx.request.body;
         if (data.match(/\\\\\\/)) data = data.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
         // logger.debug('post data: ', data);
+        if (!isObject(data)) data = JSON.parse(data);
+        if (!isObject(data)) data = JSON.parse(data);
 
+        // save to database
         this.save(ctx, data);
-
-        ctx.body = '';
     };
 
     save = async (ctx, data: any) => {
-        if (!isObject(data)) data = JSON.parse(data);
-        if (!isObject(data)) data = JSON.parse(data);
         const info: string = JSON.stringify(data);
         const info_length = info.length;
 
-        const model = new ReportSortieModel(ctx);
+        const model = new ReportSortieModel(null, ctx);
         model.map_no = data.mapId;
         model.map_area_id = data.mapAreaId;
         model.map_id = data.mapAreaId * 10 + data.mapId;

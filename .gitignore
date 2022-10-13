@@ -1,7 +1,11 @@
-# YAML file
+# project files
+.env.dev.yaml
 .env.test.yaml
 .env.prod.yaml
+.vscode
 scripts/
+example/
+tmp/
 
 # Logs
 logs

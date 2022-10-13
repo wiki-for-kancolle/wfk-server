@@ -6,7 +6,8 @@ import { forEach } from 'lodash';
 import { ServerEnv } from './env';
 import { Service } from '../service/service';
 import { getIp } from '../utils/tools';
-import { initDbPool } from '../model/db_pool';
+import { dbPoolInit } from '../model/db_pool';
+import { ossInit } from '../utils/res';
 
 export class Server {
     private app: Koa;
@@ -49,7 +50,8 @@ export class Server {
     }
 
     public initialize() {
-        initDbPool(ServerEnv.env?.global?.mysql);
+        dbPoolInit(ServerEnv.env?.global?.mysql);
+        ossInit(ServerEnv.env?.global?.oss);
     }
 
     public start() {

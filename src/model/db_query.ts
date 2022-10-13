@@ -11,11 +11,10 @@ export class DbQuery {
     private _ignoreNull = true;
     private _insertData: any;
 
-    constructor(table: string, pool: Pool, ctx?: any) {
+    constructor(table: string, pool: Pool, logger?: Logger) {
         this._table = table;
         this._pool = pool;
-        if (ctx) this._logger = ctx.logger;
-        else this._logger = getLogger(table);
+        this._logger = logger ?? getLogger(table);
     }
 
     alias = (name: string): DbQuery => {
@@ -43,6 +42,8 @@ export class DbQuery {
             return 0;
         }
     };
+
+    batchInsert = async (data: any[]) => {};
 
     insertAll = async (data: any[]): Promise<{ success: number[]; failed: any[] }> => {
         const success = [] as number[];
