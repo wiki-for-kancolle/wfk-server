@@ -1,20 +1,11 @@
 import { Logger } from 'log4js';
-import { DbModel } from './db_model';
-
-export enum OssSourceType {
-    text = 0,
-    url = 1,
-    file = 2,
-}
+import { DbModel } from '../utils/db_model';
+import { OssSourceType } from '../utils/res';
 
 export class OssFileModel extends DbModel {
     key: string;
     fsize: number;
-    fname: string;
-    fprefix: string;
-    ext: string;
     mime_type: string;
-    md5: string;
 
     image_ave: string;
     image_format: string;
@@ -29,15 +20,11 @@ export class OssFileModel extends DbModel {
     source_url: string;
     source_file: string;
 
-    constructor(data?: any, logger?: Logger) {
-        super(data, logger, [
+    constructor(data?: any) {
+        super(data, [
             'key',
             'fsize',
-            'fname',
-            'fprefix',
-            'ext',
             'mime_type',
-            'md5',
             'image_ave',
             'image_format',
             'image_width',

@@ -1,11 +1,10 @@
-import { WfkOSS } from './res';
 import qiniu, { auth, conf, form_up } from 'qiniu';
 import { getLogger } from 'log4js';
 import got from 'got';
 import fse from 'fs-extra';
 import SparkMD5 from 'spark-md5';
 import path from 'path';
-import { OssSourceType } from '../model/oss_file';
+import { OssSourceType } from './res';
 
 const __logger = getLogger('qiniu');
 
@@ -19,17 +18,18 @@ export class QiniuOptions {
     enable: boolean;
 }
 
-export class QiniuOSS implements WfkOSS {
+export class QiniuOSS {
     private uploadToken: string;
     private config: conf.Config;
-    private bucket: string;
     private prefix: string;
     private mac: auth.digest.Mac;
     private expireList: Map<string, number> = new Map();
+    name: string;
+    bucket: string;
     enable: boolean;
 
     constructor(options: QiniuOptions) {
-        const { accessKey, secretKey, bucket, prefix, enable } = options;
+        const { accessKey, secretKey, bucket, prefix, enable, name } = options;
         this.config = new qiniu.conf.Config({
             // useHttpsDomain: true,
             zone:
@@ -42,6 +42,7 @@ export class QiniuOSS implements WfkOSS {
                 }[options.zone] || qiniu.zone.Zone_z0,
         });
 
+        this.name = name;
         this.bucket = bucket;
         this.enable = enable;
         this.prefix = prefix === '' ? '' : prefix + '/';
@@ -67,15 +68,15 @@ export class QiniuOSS implements WfkOSS {
         return this.uploadToken;
     };
 
-    upload = async (res: string, key: string, type: OssSourceType) => {
+    upload = async (res: string, key: string, type: OssSourceType): Promise<any> => {
         const uploader = new qiniu.form_up.FormUploader(this.config);
         const uploadExtra = new qiniu.form_up.PutExtra();
         key = this.prefix + key;
         const token = this.getToken();
         return new Promise((resolve, reject) => {
             if (type === OssSourceType.text) {
-                const tmpDir = 'tmp';
-                const tmpFile = tmpDir + '/' + SparkMD5.hash(res) + '.' + path.extname(key);
+                const tmpDir = 'tmp/oss';
+                const tmpFile = tmpDir + '/' + SparkMD5.hash(res) + path.extname(key);
                 fse.ensureDirSync(tmpDir);
                 fse.writeFileSync(tmpFile, res);
                 uploader.putFile(token, key, path.resolve(tmpFile), uploadExtra, (err, body, info) => {

@@ -3,11 +3,11 @@ import Router from '@koa/router';
 import { getLogger, Logger } from 'log4js';
 import { v4 as uuidv4 } from 'uuid';
 import { forEach } from 'lodash';
+import { Service } from './service';
+import { getIp } from './tools';
+import { ossInit } from './res';
 import { ServerEnv } from './env';
-import { Service } from '../service/service';
-import { getIp } from '../utils/tools';
-import { dbPoolInit } from '../model/db_pool';
-import { ossInit } from '../utils/res';
+import { dbPoolInit } from './db_pool';
 
 export class Server {
     private app: Koa;

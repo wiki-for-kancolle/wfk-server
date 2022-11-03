@@ -8,12 +8,10 @@ export class DbModel {
     update_time: string;
     create_time: string;
 
-    fields: string[];
+    private fields: string[];
     tableName: string;
-    logger?: Logger;
 
-    constructor(data?: any, logger?: Logger, fields?: string[]) {
-        this.logger = logger;
+    constructor(data?: any, fields?: string[]) {
         this.fields = fields ?? [];
         this.fields.push('id', 'deleted', 'update_time', 'create_time');
         forEach(this.fields, key => (this[key] = data?.[key] ?? null));
@@ -26,8 +24,14 @@ export class DbModel {
     };
 
     static insert = async (model: DbModel) => {
-        const { tableName, logger } = model;
+        const { tableName } = model;
         const data = model.toObject();
-        return await db(tableName, logger).insert(data);
+        return await db(tableName).insert(data);
+    };
+
+    static insertAll = async (models: DbModel[]) => {
+        const { tableName } = models[0];
+        const data = models.map(m => m.toObject());
+        return await db(tableName).insertAll(data);
     };
 }

@@ -2,9 +2,10 @@ import Router from '@koa/router';
 import { Logger } from 'log4js';
 import { isObject } from 'lodash';
 import SparkMD5 from 'spark-md5';
-import { Service, parsePostData } from '../service';
+import { Service, parsePostData } from '../../utils/service';
 import { ossUpload, ossUploadFile, ossUploadUrl } from '../../utils/res';
 import path from 'path';
+import { OssFileModel } from '../../model/oss_file';
 
 export class ReportApiStart implements Service {
     registRouter = (router: Router) => {
@@ -49,9 +50,12 @@ export class ReportApiStart implements Service {
         // upload file to oss
 
         // save to database
-        // await ossUpload(remote, 'api_start2.json');
-        // await ossUploadFile(path.resolve('example/res/8.png'), '8.png');
-        // await ossUploadUrl('https://uploads.kcwiki.cn/commons/9/93/535-DockMedDmg.mp3', '535-DockMedDmg.mp3');
+        // const f1 = await ossUpload(remote, 'api_start2.json');
+        // const f2 = await ossUploadFile(path.resolve('example/res/8.png'), '8.png');
+        // const f3 = await ossUploadUrl('https://uploads.kcwiki.cn/commons/9/93/535-DockMedDmg.mp3', '535-DockMedDmg.mp3');
+        // f1 && OssFileModel.insert(f1);
+        // f2 && OssFileModel.insert(f2);
+        // f3 && OssFileModel.insertAll([f3]);
     };
 
     isValid = (ctx, data): boolean => {

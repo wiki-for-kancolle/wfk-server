@@ -1,6 +1,6 @@
-import { PoolOptions } from 'mysql2';
-import { LoggerOptions } from '../utils/log';
-import { QiniuOptions } from '../utils/qiniu';
+import { DbOptions } from './db_pool';
+import { LoggerOptions } from './log';
+import { QiniuOptions } from './qiniu';
 
 export class ServerEnv {
     command_line: {
@@ -9,7 +9,7 @@ export class ServerEnv {
     };
     global: {
         port: number;
-        mysql: PoolOptions;
+        mysql: DbOptions[];
         oss?: QiniuOptions[];
     };
     server: {

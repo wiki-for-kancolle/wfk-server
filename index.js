@@ -9,7 +9,7 @@ const yamlfile = mode === 'prod' ? '.env.prod.yaml' : '.env.test.yaml';
 // read local env file
 const YAML = require('yaml');
 const config = YAML.parse(require('fs').readFileSync(yamlfile, 'utf8'));
-const { ServerEnv } = require('./src/server/env');
+const { ServerEnv } = require('./src/utils/env');
 const env = {
     command_line: {
         server_name,

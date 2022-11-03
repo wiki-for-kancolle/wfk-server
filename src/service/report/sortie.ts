@@ -1,7 +1,7 @@
 import Router from '@koa/router';
 import { Logger } from 'log4js';
 import { isObject } from 'lodash';
-import { Service, parsePostData } from '../service';
+import { Service, parsePostData } from '../../utils/service';
 import { ReportSortieModel } from '../../model/report_sortie';
 
 export class ReportSortie implements Service {
@@ -40,7 +40,7 @@ export class ReportSortie implements Service {
         const info: string = JSON.stringify(data);
         const info_length = info.length;
 
-        const model = new ReportSortieModel(null, ctx);
+        const model = new ReportSortieModel();
         model.map_no = data.mapId;
         model.map_area_id = data.mapAreaId;
         model.map_id = data.mapAreaId * 10 + data.mapId;
