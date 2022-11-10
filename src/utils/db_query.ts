@@ -59,7 +59,48 @@ export class DbQuery {
     private _ignoreNull = true;
     private _distinct = false;
 
-    constructor() {}
+    private setdata = (data?: any): DbQuery => {
+        if (data) {
+            if (data.poolName) this._poolName = data.poolName;
+            if (data.operation) this._operation = data.operation;
+            if (data.table) this._table = data.table;
+            if (data.tablePrefix) this._tablePrefix = data.tablePrefix;
+            if (data.alias) this._alias = data.alias;
+            if (data.join) this._join = _.clone(data.join);
+            if (data.where) this._where = _.clone(data.where);
+            if (data.fields) this._fields = _.clone(data.fields);
+            if (data.limitRows) this._limitRows = data.limitRows;
+            if (data.limitOffset) this._limitOffset = data.limitOffset;
+            if (data.group) this._group = data.group;
+            if (data.having) this._having = data.having;
+            if (data.order) this._order = data.order;
+            if (data.insertData) this._insertData = _.clone(data.insertData);
+            if (data.ignoreNull) this._ignoreNull = data.ignoreNull;
+            if (data.distinct) this._distinct = data.distinct;
+        }
+        return this;
+    };
+
+    private clone(): DbQuery {
+        return new DbQuery().setdata({
+            poolName: this._poolName,
+            operation: this._operation,
+            table: this._table,
+            tablePrefix: this._tablePrefix,
+            alias: this._alias,
+            join: this._join,
+            where: this._where,
+            fields: this._fields,
+            limitRows: this._limitRows,
+            limitOffset: this._limitOffset,
+            group: this._group,
+            having: this._having,
+            order: this._order,
+            insertData: this._insertData,
+            ignoreNull: this._ignoreNull,
+            distinct: this._distinct,
+        });
+    }
 
     /**
      * set table name
@@ -71,11 +112,7 @@ export class DbQuery {
      * db().table('t_user', false);
      * db().table('user', true); // will append 't_' automatically
      */
-    table = (table: string, prefix: boolean = false): DbQuery => {
-        this._table = table;
-        this._tablePrefix = prefix;
-        return this;
-    };
+    table = (table: string, prefix: boolean = false): DbQuery => this.clone().setdata({ table, tablePrefix: prefix });
     t = this.table;
 
     /**
@@ -86,10 +123,7 @@ export class DbQuery {
      * @example
      * db('user').use('slave');
      */
-    use = (pool: string): DbQuery => {
-        this._poolName = pool;
-        return this;
-    };
+    use = (pool: string): DbQuery => this.clone().setdata({ poolName: pool });
 
     /**
      * avaialble for select / update / delete
@@ -100,10 +134,7 @@ export class DbQuery {
      * @example
      * db('table').alias('t');
      */
-    alias = (name: string): DbQuery => {
-        this._alias = name;
-        return this;
-    };
+    alias = (name: string): DbQuery => this.clone().setdata({ alias: name });
     as = this.alias;
 
     /**
@@ -125,12 +156,13 @@ export class DbQuery {
         condition: string | string[],
         type: 'left' | 'inner' | 'right' | 'full' = 'inner',
     ): DbQuery => {
+        const q = this.clone();
         if (_.isArray(table)) {
             const [t, alias] = table;
-            if (t instanceof DbQuery) this._join.push(new DbJoin(['(' + t.ssql() + ')', alias], condition, type));
-            else this._join.push(new DbJoin([t, alias], condition, type));
-        } else this._join.push(new DbJoin(table, condition, type));
-        return this;
+            if (t instanceof DbQuery) q._join.push(new DbJoin(['(' + t.ssql() + ')', alias], condition, type));
+            else q._join.push(new DbJoin([t, alias], condition, type));
+        } else q._join.push(new DbJoin(table, condition, type));
+        return q;
     };
     j = this.join;
     lj = (table: string | [string | DbQuery, string], condition: string | string[]): DbQuery => this.join(table, condition, 'left');
@@ -153,16 +185,19 @@ export class DbQuery {
      * db('table').where([['id', '=', 1], ['num', '>', '1']]).select(); // array(array(field, operator, value))
      */
     where = (field: any, operator?: any, value?: any): DbQuery => {
+        let q = this.clone();
         if (_.isArray(field)) {
-            if (_.isArray(_.first(field))) _.forEach(field, f => this.where(f[0], f[1], f[2]));
-            else this.where(field[0], field[1], field[2]);
+            if (_.isArray(_.first(field))) {
+                for (const f of field) q = q.where(f[0], f[1], f[2]);
+                return q;
+            } else return q.where(field[0], field[1], field[2]);
         } else if (_.isString(field) && _.isUndefined(operator) && _.isUndefined(value)) {
-            this._where.push(new DbWhere({ exp: field }));
+            q._where.push(new DbWhere({ exp: field }));
         } else {
-            if (!_.isUndefined(operator) && _.isUndefined(value)) this.where(field, '=', operator);
-            else this._where.push(new DbWhere({ field, operator, value }));
+            if (!_.isUndefined(operator) && _.isUndefined(value)) return q.where(field, '=', operator);
+            else q._where.push(new DbWhere({ field, operator, value }));
         }
-        return this;
+        return q;
     };
     w = this.where;
 
@@ -232,9 +267,10 @@ export class DbQuery {
      * db('table').field(['id', 'name']).select();
      */
     field = (fields: string | string[]) => {
+        const q = this.clone();
         if (_.isString(fields)) fields = _.split(fields, ',');
-        _.forEach(fields, f => this._fields.push(f));
-        return this;
+        _.forEach(fields, f => q._fields.push(f));
+        return q;
     };
     f = this.field;
 
@@ -248,11 +284,7 @@ export class DbQuery {
      * db('table').limit(10).select();
      * db('table').limit(10, 20).select();
      */
-    limit = (rows: number, offset: number = 0) => {
-        this._limitRows = rows;
-        this._limitOffset = offset;
-        return this;
-    };
+    limit = (rows: number, offset: number = 0) => this.clone().setdata({ limitRows: rows, limitOffset: offset });
     l = this.limit;
 
     /**
@@ -276,9 +308,10 @@ export class DbQuery {
      * db('table').where('id', 1).find();
      */
     find = async (id?: number): Promise<any> => {
-        if (this._limitRows === 0) this.limit(1);
-        if (id && id > 0) this.where('id', id);
-        const rows = await this.select();
+        let q = this.clone();
+        if (q._limitRows === 0) q = q.limit(1);
+        if (id && id > 0) q = q.where('id', id);
+        const rows = await q.select();
         return _.first(rows);
     };
 
@@ -291,7 +324,8 @@ export class DbQuery {
      * db('table').column('id');
      */
     column = async (field: string): Promise<any[]> => {
-        const rows = await this.select();
+        const q = this.clone();
+        const rows = await q.select();
         return _.map(rows, o => o[field]);
     };
     col = this.column;
@@ -376,10 +410,7 @@ export class DbQuery {
      * db('table').order('id').select();
      * db('table').order('name asc, id desc').select();
      */
-    order = (exp: string): DbQuery => {
-        this._order = exp;
-        return this;
-    };
+    order = (exp: string): DbQuery => this.clone().setdata({ order: exp });
     o = this.order;
 
     /**
@@ -390,10 +421,7 @@ export class DbQuery {
      * @example
      * db('test').group('name, age').select();
      */
-    group = (exp: string): DbQuery => {
-        this._group = exp;
-        return this;
-    };
+    group = (exp: string): DbQuery => this.clone().setdata({ group: exp });
     g = this.group;
 
     /**
@@ -404,10 +432,7 @@ export class DbQuery {
      * @example
      * db('test').group('name').having('count(1) > 2').select();
      */
-    having = (exp: string): DbQuery => {
-        this._having = exp;
-        return this;
-    };
+    having = (exp: string): DbQuery => this.clone().setdata({ having: exp });
     h = this.having;
 
     /**
@@ -418,10 +443,7 @@ export class DbQuery {
      * @example
      * db('table').distinct().field('name').select();
      */
-    distinct = (value: boolean = true): DbQuery => {
-        this._distinct = value;
-        return this;
-    };
+    distinct = (value: boolean = true): DbQuery => this.clone().setdata({ distinct: value });
 
     /**
      * avaialble for insert / update
@@ -431,10 +453,7 @@ export class DbQuery {
      * @example
      * db('table').ignoreNull(false).insert({name: null});
      */
-    ignoreNull = (value: boolean): DbQuery => {
-        this._ignoreNull = value;
-        return this;
-    };
+    ignoreNull = (value: boolean): DbQuery => this.clone().setdata({ ignoreNull: value });
 
     // TODO:
     inc = async (field: string, value: number = 1) => {};
@@ -451,17 +470,18 @@ export class DbQuery {
      * db('table').insert([{ name: 'abc' }, { name: 'def' }]);
      */
     insert = async (data: any | any[]): Promise<number> => {
-        const raw = this.insertSql(data);
-        // this._logger.debug(raw);
-        if (!this._db) return 0;
+        const q = this.clone();
+        const raw = q.insertSql(data);
+        // q._logger.debug(raw);
+        if (!q._db) return 0;
 
         try {
-            const result = (await this.query(raw))[0] as ResultSetHeader;
+            const result = (await q.query(raw))[0] as ResultSetHeader;
             const insertId = result?.insertId ?? 0;
-            // this._logger.debug('insert result: ', result);
+            // q._logger.debug('insert result: ', result);
             return insertId;
         } catch (e) {
-            this._logger.error(raw, e);
+            q._logger.error(raw, e);
             return 0;
         }
     };
@@ -475,17 +495,17 @@ export class DbQuery {
      * @example
      * db('table').insertAll([{ name: 'abc' }]);
      */
-    insertAll = async (data: any[]): Promise<{ success: number[]; failed: any[] }> => {
-        const success = [] as number[];
-        const failed = [] as any[];
-        for (const d of data) {
-            const resultId = await this.insert(d);
-            if (resultId > 0) success.push(resultId);
-            else failed.push(d);
-        }
-        return { success, failed };
-    };
-    iall = this.insertAll;
+    // insertAll = async (data: any[]): Promise<{ success: number[]; failed: any[] }> => {
+    //     const success = [] as number[];
+    //     const failed = [] as any[];
+    //     for (const d of data) {
+    //         const resultId = await this.insert(d);
+    //         if (resultId > 0) success.push(resultId);
+    //         else failed.push(d);
+    //     }
+    //     return { success, failed };
+    // };
+    // iall = this.insertAll;
 
     /**
      *
@@ -496,7 +516,7 @@ export class DbQuery {
         if (_.isArray(data)) _.forEach(data, d => this._insertData.push(d));
         else this._insertData.push(data);
         this._operation = DbOperation.INSERT;
-        this.beforeQuery();
+        this.beforeExecute();
         return this.raw();
     };
     isql = this.insertSql;
@@ -506,16 +526,17 @@ export class DbQuery {
      * @returns affected rows
      */
     select = async (): Promise<any[]> => {
-        const raw = this.selectSql();
-        // this._logger.debug(raw);
-        if (!this._db) return [];
+        const q = this.clone();
+        const raw = q.selectSql();
+        // q._logger.debug(raw);
+        if (!q._db) return [];
 
         try {
-            const result = (await this.query(raw))[0] as any[];
-            // this._logger.debug('select result: ', result);
+            const result = (await q.query(raw))[0] as any[];
+            // q._logger.debug('select result: ', result);
             return result;
         } catch (e) {
-            this._logger.error(raw, e);
+            q._logger.error(raw, e);
             return [];
         }
     };
@@ -527,7 +548,7 @@ export class DbQuery {
      */
     selectSql = (): string => {
         this._operation = DbOperation.SELECT;
-        this.beforeQuery();
+        this.beforeExecute();
         return this.raw();
     };
     ssql = this.selectSql;
@@ -537,7 +558,22 @@ export class DbQuery {
     // TODO:
     delete = async (data: any) => {};
 
-    private beforeQuery = () => {
+    execute = async (raw: string): Promise<any> => {
+        const q = this.clone();
+        q.beforeExecute();
+        if (!q._db) return [];
+
+        try {
+            const result = (await q.query(raw))[0];
+            // q._logger.debug('execute result: ', result);
+            return result;
+        } catch (e) {
+            q._logger.error(raw, e);
+            return [];
+        }
+    };
+
+    private beforeExecute = () => {
         const db = getDbPool(this._poolName);
         if (!db) return;
         this._db = db;

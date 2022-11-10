@@ -32,6 +32,6 @@ export class DbModel {
     static insertAll = async (models: DbModel[]) => {
         const { tableName } = models[0];
         const data = models.map(m => m.toObject());
-        return await db(tableName).insertAll(data);
+        return await db(tableName).insert(data);
     };
 }
